@@ -1,0 +1,27 @@
+%% Loading antigen prenenting cells data (Liang et al.) and fitted parameters
+
+load Liang_data.mat % Liang data for initial conditions
+load Liang_fit.mat % fitted parameters from Liang data
+
+
+%% Setting the product-specific parameters
+
+dose_g = 30e-6; % g of mRNA in Pfizer vaccine (30 micrograms)
+Ag_MW = 1377479.8; % (g/mol) molecular weight of BNT162b2 mRNA sequence 
+
+% general parameters for the simulation
+t_end = 100; %[day]
+
+
+%% loading model's parameters
+
+pars = Parameters(Liang_fit, Liang_data, dose_g, Ag_MW);
+
+
+%% simulation of the (molecular) dynamics of mDC and pDC and 
+[deltaTimes, t_record_mDC, y_record_mDC, t_record_pDC, y_record_pDC] = ...
+    estimate_deltaT(pars.kp, pars.kdmrna, pars.mIDC0_IS, pars.pIDC0_IS, pars.mRNA_w, pars.Ag_MW, pars.p_L, pars.p_M, pars.p_H, t_end);
+
+initialTransitionRates = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+deltaMRTs = computeDeltaMRT(initialTransitionRates, t_end, pars.iState, pars.Eta, pars.Gamma, pars.SF_Gamma, pars.Delta, pars.K_mRNA, pars.kdmrna);
