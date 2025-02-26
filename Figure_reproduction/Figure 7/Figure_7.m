@@ -71,17 +71,34 @@ GMC_25ug = Phase1Trial.GMC_25ug;
 low95CI_25ug = Phase1Trial.low95CI_25ug;
 upp95CI_25ug = Phase1Trial.up95CI_25ug;
 GMC_100ug = Phase1Trial.GMC_100ug;
-GMR = GMC_25ug./GMC_100ug;
-rel_data25 = KeshMod_mob_mean([3,12,19,33]-1).*GMR(2:end);
 
 load KirsteData.mat
 
 GMC_50ug = Phase2Trial.GMC_50ug;
 low95CI_50ug = Phase2Trial.low95CI_50ug;
 upp95CI_50ug = Phase2Trial.up95CI_50ug;
-GMR2 = GMC_50ug./GMC_100ug;
-rel_data50 = KeshMod_mob_mean([3,12,19,33]-1).*GMR2(2:end);
 
+
+%% Fit a non-linear regression model (2 param) to scale the data
+
+Keshdata2comp = zeros(4,3);
+
+for i = 1:length(Phase1times)-1
+    isclosenough = abs(KeshavarzMod_times - Phase1times(1+i)) < 4;
+    Keshdata2comp(i,:) = logmeanandci(KeshavarzMod_data(isclosenough));
+end
+
+modelfun_2p = @(a,x)a(1)*(x.^a(2));
+alpha0 = [1, 1];
+mdl_2par = fitnlm(GMC_100ug(2:end), Keshdata2comp(:,1), modelfun_2p, alpha0, "Weights", 1./(Keshdata2comp(:,3)-Keshdata2comp(:,2)));
+
+pred_25ug = predict(mdl_2par, GMC_25ug(2:end));
+pred_25ug_low = predict(mdl_2par, low95CI_25ug(2:end));
+pred_25ug_upp = predict(mdl_2par, upp95CI_25ug(2:end));
+
+pred_50ug = predict(mdl_2par, GMC_50ug(2:end));
+pred_50ug_low = predict(mdl_2par, low95CI_50ug(2:end));
+pred_50ug_upp = predict(mdl_2par, upp95CI_50ug(2:end));
 
 
 %% PLOTS **********************************************************
@@ -106,8 +123,8 @@ legend({'model prediction', 'Keshavarz et al. (100μg)'}, 'FontSize', 12, "Locat
 subplot(2,2,3)
 m = semilogy(t_record25,IgG25,'Color', color(2,:),'LineWidth',2);
 hold on
-j_1 = errorbar(Phase1times(2:end), rel_data25, rel_data25 - KeshMod_mob_mean([3,12,19,33]-1).*low95CI_25ug(2:end)./GMC_100ug(2:end), KeshMod_mob_mean([3,12,19,33]-1).*upp95CI_25ug(2:end)./GMC_100ug(2:end) - rel_data25, 'v', 'color', color(2,:), 'LineWidth',1.5);
-j = semilogy(Phase1times(2:end), rel_data25, 'v', 'color', color(2,:), 'LineWidth',1.5, 'MarkerSize', 8);
+j = semilogy(Phase1times(2:end), pred_25ug, 'v', 'color', color(2,:), 'LineWidth',1.5, 'MarkerSize', 8);
+j_1 = errorbar(Phase1times(2:end), pred_25ug, pred_25ug - pred_25ug_low, pred_25ug_upp - pred_25ug, 'v', 'color', color(2,:), 'LineWidth',1.5);
 xlim([0 t_end])
 ylim([300 200000])
 xlabel('days')
@@ -119,8 +136,8 @@ legend([m j], {'model prediction', 'Jochum et al. (25μg)'}, 'FontSize', 12, 'Lo
 subplot(2,2,4)
 m = semilogy(t_record50,IgG50,'Color', color(3,:),'LineWidth',2);
 hold on
-k_1 = errorbar(Phase1times(2:end), rel_data50, rel_data50 - KeshMod_mob_mean([3,12,19,33]-1).*low95CI_50ug(2:end)./GMC_100ug(2:end), KeshMod_mob_mean([3,12,19,33]-1).*upp95CI_50ug(2:end)./GMC_100ug(2:end) - rel_data50, '^', 'color', color(3,:), 'LineWidth',1.5);
-k = semilogy(Phase1times(2:end), rel_data50, '^', 'color', color(3,:), 'LineWidth',1.5, 'MarkerSize', 8);
+k = semilogy(Phase1times(2:end), pred_50ug, '^', 'color', color(3,:), 'LineWidth',1.5, 'MarkerSize', 8);
+k_1 = errorbar(Phase1times(2:end), pred_50ug, pred_50ug - pred_50ug_low, pred_50ug_upp - pred_50ug, '^', 'color', color(3,:), 'LineWidth',1.5);
 xlim([0 t_end])
 ylim([300 200000])
 xlabel('days')

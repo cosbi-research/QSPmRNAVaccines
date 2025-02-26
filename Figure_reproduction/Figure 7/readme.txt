@@ -37,6 +37,10 @@ SCRIPTS:
 
 FUNCTIONS:
 
+- logmeanandci.m: script to obtain the geometric mean and 95% confidence 
+    interval from a vector of values that are supposed to have a lognormal 
+    distribution;
+
 - model_equations.m: contains all the equations of the tissue layer of the 
     model;
 
