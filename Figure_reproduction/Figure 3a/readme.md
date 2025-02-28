@@ -1,12 +1,3 @@
-# SUPPLEMENTARY FILES S2
-
-## "A Multiscale Quantitative Systems Pharmacology model for the development and optimization of mRNA vaccines"
-
-### Authors
-Lorenzo Dasti, Stefano Giampiccolo, Elisa Pettinà, Giada Fiandaca, Natascia Zangani,  
-Lorena Leonardelli, Fabio De Lima Hedayioglu, Elio Campanile, Luca Marchetti
-
----
 
 The present folder contains the script for the reproduction of panel a) of Figure 3 in the main text (antigen-presenting cells data fit).
 
